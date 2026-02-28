@@ -28,8 +28,9 @@ html, body {
 
 #setupScreen {
   padding: 40px 20px;
-  background: white;
-  height: 100%;
+  background: white;   /* visible first page */
+  height: 100dvh;      /* full viewport */
+  box-sizing: border-box;
 }
 
 input {
@@ -67,14 +68,14 @@ button {
 /* Portrait */
 @media (orientation: portrait) {
   #timer {
-    font-size: 4em;
+    font-size: 3em;
   }
 }
 
 /* Landscape */
 @media (orientation: landscape) {
   #timer {
-    font-size: 7em;
+    font-size: 5em;
   }
 }
 </style>
