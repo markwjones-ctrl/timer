@@ -16,17 +16,20 @@
 
 <style>
 html, body {
-  margin: 0; Ty
+  margin: 0;
   padding: 0;
-  height: 100%;
+  height: 100dvh; /* dynamic viewport height fixes iOS rotation */
+  width: 100dvw;
   overflow: hidden;
   font-family: Arial, sans-serif;
-  background: white;
+  background: black;
   text-align: center;
 }
 
 #setupScreen {
   padding: 40px 20px;
+  background: white;
+  height: 100%;
 }
 
 input {
@@ -51,10 +54,14 @@ button {
   color: white;
   justify-content: center;
   align-items: center;
+  display: flex;
 }
 
 #timer {
   font-weight: bold;
+  max-width: 90%;
+  text-align: center;
+  word-wrap: break-word;
 }
 
 /* Portrait */
@@ -142,12 +149,23 @@ function updateDisplay() {
   const timer = document.getElementById('timer');
   timer.textContent = display;
 
-  if (remainingSeconds < 0) {
-    timer.style.color = "red";
-  } else {
-    timer.style.color = "white";
+  timer.style.color = remainingSeconds < 0 ? "red" : "white";
+}
+
+// Recenter timer on orientation change or resize (iOS fix)
+function resizeTimer() {
+  const timerScreen = document.getElementById('timerScreen');
+  if (timerScreen.style.display === "flex") {
+    // force repaint/recenter
+    timerScreen.style.display = "none";
+    setTimeout(() => {
+      timerScreen.style.display = "flex";
+    }, 10);
   }
 }
+
+window.addEventListener('orientationchange', resizeTimer);
+window.addEventListener('resize', resizeTimer);
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
