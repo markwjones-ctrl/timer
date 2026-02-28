@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Countdown Timer</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+<!-- Apple Fullscreen Support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Countdown Timer">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: white;
+  text-align: center;
+}
+
+#setupScreen {
+  padding: 40px 20px;
+}
+
+input {
+  padding: 10px;
+  font-size: 1rem;
+  width: 220px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  margin: 5px;
+  cursor: pointer;
+}
+
+#timerScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: white;
+  justify-content: center;
+  align-items: center;
+}
+
+#timer {
+  font-weight: bold;
+}
+
+/* Portrait */
+@media (orientation: portrait) {
+  #timer {
+    font-size: 3em;
+  }
+}
+
+/* Landscape */
+@media (orientation: landscape) {
+  #timer {
+    font-size: 5em;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="setupScreen">
+  <h1>Countdown Timer</h1>
+  <input type="number" id="minutesInput" placeholder="Input countdown in minutes">
+  <br>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="clearTimer()">Clear</button>
+</div>
+
+<div id="timerScreen" onclick="togglePause()">
+  <div id="timer">00:00</div>
+</div>
+
+<script>
+let interval = null;
+let remainingSeconds = 0;
+let paused = false;
+
+function startTimer() {
+  const minutes = parseFloat(document.getElementById('minutesInput').value);
+  if (isNaN(minutes)) return;
+
+  remainingSeconds = Math.floor(minutes * 60);
+  paused = false;
+
+  document.getElementById('setupScreen').style.display = "none";
+  document.getElementById('timerScreen').style.display = "flex";
+
+  updateDisplay();
+
+  if (interval) clearInterval(interval);
+
+  interval = setInterval(() => {
+    if (!paused) {
+      remainingSeconds--;
+      updateDisplay();
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (interval) clearInterval(interval);
+  interval = null;
+  remainingSeconds = 0;
+  paused = false;
+
+  document.getElementById('minutesInput').value = "";
+  document.getElementById('setupScreen').style.display = "block";
+  document.getElementById('timerScreen').style.display = "none";
+}
+
+function togglePause() {
+  paused = !paused;
+}
+
+function updateDisplay() {
+  let absSeconds = Math.abs(remainingSeconds);
+  let mins = Math.floor(absSeconds / 60);
+  let secs = absSeconds % 60;
+
+  let display =
+    (remainingSeconds < 0 ? "-" : "") +
+    String(mins).padStart(2, '0') + ":" +
+    String(secs).padStart(2, '0');
+
+  const timer = document.getElementById('timer');
+  timer.textContent = display;
+
+  if (remainingSeconds < 0) {
+    timer.style.color = "red";
+  } else {
+    timer.style.color = "white";
+  }
+}
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</body>
+</html>
