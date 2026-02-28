@@ -15,21 +15,28 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
+/* Base page styling */
 html, body {
   margin: 0;
-  padding: 0;
-  height: 100dvh; /* dynamic viewport height fixes iOS rotation */
-  width: 100dvw;
-  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   font-family: Arial, sans-serif;
   background: black;
   text-align: center;
+  min-height: 100vh; /* full viewport fallback */
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
+/* Setup page */
 #setupScreen {
+  background: white;
   padding: 40px 20px;
-  background: white;   /* visible first page */
-  height: 100dvh;      /* full viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%; /* naturally fills screen */
   box-sizing: border-box;
 }
 
@@ -47,6 +54,7 @@ button {
   cursor: pointer;
 }
 
+/* Timer screen */
 #timerScreen {
   display: none;
   position: fixed;
@@ -129,7 +137,7 @@ function clearTimer() {
   paused = false;
 
   document.getElementById('minutesInput').value = "";
-  document.getElementById('setupScreen').style.display = "block";
+  document.getElementById('setupScreen').style.display = "flex";
   document.getElementById('timerScreen').style.display = "none";
 }
 
@@ -157,7 +165,6 @@ function updateDisplay() {
 function resizeTimer() {
   const timerScreen = document.getElementById('timerScreen');
   if (timerScreen.style.display === "flex") {
-    // force repaint/recenter
     timerScreen.style.display = "none";
     setTimeout(() => {
       timerScreen.style.display = "flex";
