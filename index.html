@@ -15,28 +15,38 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
-/* Base page styling */
 html, body {
   margin: 0;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   font-family: Arial, sans-serif;
   background: black;
   text-align: center;
-  min-height: 100vh; /* full viewport fallback */
+  min-height: 100vh;
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
 }
 
+/* Live clock at top */
+#currentTime {
+  position: fixed;
+  top: 10px;
+  width: 100%;
+  font-size: 2em;
+  text-align: center;
+  z-index: 10;
+}
+
 /* Setup page */
 #setupScreen {
   background: white;
-  padding: 40px 20px;
+  color: black;
+  padding: 80px 20px 40px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100%; /* naturally fills screen */
+  min-height: 100%;
   box-sizing: border-box;
 }
 
@@ -63,33 +73,33 @@ button {
   color: white;
   justify-content: center;
   align-items: center;
-  display: flex;
 }
 
 #timer {
   font-weight: bold;
   max-width: 90%;
   text-align: center;
-  word-wrap: break-word;
 }
 
 /* Portrait */
 @media (orientation: portrait) {
   #timer {
-    font-size: 5em;
+    font-size: 3em;
   }
 }
 
 /* Landscape */
 @media (orientation: landscape) {
   #timer {
-    font-size: 8em;
+    font-size: 5em;
   }
 }
 </style>
 </head>
 
 <body>
+
+<div id="currentTime"></div>
 
 <div id="setupScreen">
   <h1>Countdown Timer</h1>
@@ -107,6 +117,15 @@ button {
 let interval = null;
 let remainingSeconds = 0;
 let paused = false;
+
+/* Live clock */
+function updateClock() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString();
+  document.getElementById('currentTime').textContent = timeString;
+}
+setInterval(updateClock, 1000);
+updateClock();
 
 function startTimer() {
   const minutes = parseFloat(document.getElementById('minutesInput').value);
@@ -157,11 +176,10 @@ function updateDisplay() {
 
   const timer = document.getElementById('timer');
   timer.textContent = display;
-
   timer.style.color = remainingSeconds < 0 ? "red" : "white";
 }
 
-// Recenter timer on orientation change or resize (iOS fix)
+/* iOS orientation fix */
 function resizeTimer() {
   const timerScreen = document.getElementById('timerScreen');
   if (timerScreen.style.display === "flex") {
@@ -175,7 +193,7 @@ function resizeTimer() {
 window.addEventListener('orientationchange', resizeTimer);
 window.addEventListener('resize', resizeTimer);
 
-// Register Service Worker
+/* Service Worker */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
