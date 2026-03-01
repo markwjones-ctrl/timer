@@ -5,10 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Love Clock Timer</title>
 
+<!-- Apple PWA support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Love Clock Timer">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
-body {
+/* Base styling */
+html, body {
   margin: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   font-family: Arial, sans-serif;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Setup Screen */
@@ -16,7 +27,7 @@ body {
   padding: 40px 20px;
   text-align: center;
   background: white;
-  min-height: 100vh;
+  min-height: 100%;
   box-sizing: border-box;
 }
 
@@ -32,16 +43,17 @@ body {
   align-items: center;
 }
 
-/* Clock at top */
+/* Live clock at top */
 #currentTime {
   font-size: 2em;
-  margin-top: 20px;
+  margin-top: env(safe-area-inset-top, 20px);
   color: white;
+  z-index: 10;
 }
 
-/* Countdown centered below */
+/* Countdown timer centered below */
 #timerContainer {
-  flex: 1; /* takes remaining space */
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -154,6 +166,17 @@ function updateClock() {
 
 // Update clock every second
 setInterval(updateClock, 1000);
+
+// iOS orientation / resize fix (ensures centered timer)
+function resizeTimer() {
+  const timerScreen = document.getElementById('timerScreen');
+  if (timerScreen.style.display === "flex") {
+    timerScreen.style.display = "none";
+    setTimeout(() => { timerScreen.style.display = "flex"; }, 10);
+  }
+}
+window.addEventListener('orientationchange', resizeTimer);
+window.addEventListener('resize', resizeTimer);
 </script>
 
 </body>
