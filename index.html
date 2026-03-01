@@ -2,201 +2,144 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Countdown Timer</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-
-<!-- Apple Fullscreen Support -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Countdown Timer">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Clock Timer</title>
 
 <style>
-html, body {
+body {
   margin: 0;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   font-family: Arial, sans-serif;
-  background: black;
-  text-align: center;
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
 }
 
-/* Live clock at top */
-#currentTime {
-  position: fixed;
-  top: 10px;
-  width: 100%;
-  font-size: 2em;
-  text-align: center;
-  z-index: 10;
-}
-
-/* Setup page */
+/* Setup Screen */
 #setupScreen {
-  background: white;
-  color: black;
-  padding: 80px 20px 40px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100%;
-  box-sizing: border-box;
+  padding: 20px;
+  text-align: center;
 }
 
-input {
-  padding: 10px;
-  font-size: 1rem;
-  width: 220px;
-  margin-bottom: 20px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  margin: 5px;
-  cursor: pointer;
-}
-
-/* Timer screen */
+/* Timer Screen */
 #timerScreen {
   display: none;
   position: fixed;
   inset: 0;
   background: black;
   color: white;
+  display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
+/* Clock */
+#currentTime {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+/* Countdown */
 #timer {
+  font-size: 5em;
   font-weight: bold;
-  max-width: 90%;
-  text-align: center;
 }
 
-/* Portrait */
-@media (orientation: portrait) {
-  #timer {
-    font-size: 3em;
-  }
-}
-
-/* Landscape */
-@media (orientation: landscape) {
-  #timer {
-    font-size: 5em;
-  }
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  margin: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="currentTime"></div>
-
+<!-- Setup Screen -->
 <div id="setupScreen">
-  <h1>Countdown Timer</h1>
-  <input type="number" id="minutesInput" placeholder="Input countdown in minutes">
-  <br>
+  <h1>Love Clock Timer</h1>
+
+  <label>Minutes:
+    <input type="number" id="minutesInput" value="1" min="0">
+  </label>
+  <br><br>
+
   <button onclick="startTimer()">Start</button>
   <button onclick="clearTimer()">Clear</button>
 </div>
 
+<!-- Timer Screen -->
 <div id="timerScreen" onclick="togglePause()">
+  <div id="currentTime"></div>
   <div id="timer">00:00</div>
 </div>
 
 <script>
-let interval = null;
-let remainingSeconds = 0;
+let countdown;
+let totalSeconds = 0;
 let paused = false;
+let interval;
 
-/* Live clock */
-function updateClock() {
-  const now = new Date();
-  const timeString = now.toLocaleTimeString();
-  document.getElementById('currentTime').textContent = timeString;
-}
-setInterval(updateClock, 1000);
-updateClock();
-
+// Start Timer
 function startTimer() {
-  const minutes = parseFloat(document.getElementById('minutesInput').value);
-  if (isNaN(minutes)) return;
+  const minutes = parseInt(document.getElementById("minutesInput").value) || 0;
+  totalSeconds = minutes * 60;
 
-  remainingSeconds = Math.floor(minutes * 60);
-  paused = false;
+  document.getElementById("setupScreen").style.display = "none";
+  document.getElementById("timerScreen").style.display = "flex";
 
-  document.getElementById('setupScreen').style.display = "none";
-  document.getElementById('timerScreen').style.display = "flex";
-
+  updateClock();
   updateDisplay();
-
-  if (interval) clearInterval(interval);
 
   interval = setInterval(() => {
     if (!paused) {
-      remainingSeconds--;
+      totalSeconds--;
       updateDisplay();
     }
   }, 1000);
 }
 
-function clearTimer() {
-  if (interval) clearInterval(interval);
-  interval = null;
-  remainingSeconds = 0;
-  paused = false;
+// Update Countdown Display
+function updateDisplay() {
+  const timer = document.getElementById("timer");
 
-  document.getElementById('minutesInput').value = "";
-  document.getElementById('setupScreen').style.display = "flex";
-  document.getElementById('timerScreen').style.display = "none";
+  const absSeconds = Math.abs(totalSeconds);
+  const mins = Math.floor(absSeconds / 60);
+  const secs = absSeconds % 60;
+
+  timer.textContent =
+    (totalSeconds < 0 ? "-" : "") +
+    String(mins).padStart(2, "0") +
+    ":" +
+    String(secs).padStart(2, "0");
+
+  if (totalSeconds < 0) {
+    timer.style.color = "red";
+  } else {
+    timer.style.color = "white";
+  }
 }
 
+// Pause / Resume
 function togglePause() {
   paused = !paused;
 }
 
-function updateDisplay() {
-  let absSeconds = Math.abs(remainingSeconds);
-  let mins = Math.floor(absSeconds / 60);
-  let secs = absSeconds % 60;
+// Clear (Hard Stop)
+function clearTimer() {
+  clearInterval(interval);
+  paused = false;
+  totalSeconds = 0;
 
-  let display =
-    (remainingSeconds < 0 ? "-" : "") +
-    String(mins).padStart(2, '0') + ":" +
-    String(secs).padStart(2, '0');
-
-  const timer = document.getElementById('timer');
-  timer.textContent = display;
-  timer.style.color = remainingSeconds < 0 ? "red" : "white";
+  document.getElementById("timerScreen").style.display = "none";
+  document.getElementById("setupScreen").style.display = "block";
 }
 
-/* iOS orientation fix */
-function resizeTimer() {
-  const timerScreen = document.getElementById('timerScreen');
-  if (timerScreen.style.display === "flex") {
-    timerScreen.style.display = "none";
-    setTimeout(() => {
-      timerScreen.style.display = "flex";
-    }, 10);
-  }
+// Live Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById("currentTime").textContent =
+    now.toLocaleTimeString();
 }
 
-window.addEventListener('orientationchange', resizeTimer);
-window.addEventListener('resize', resizeTimer);
-
-/* Service Worker */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
+setInterval(updateClock, 1000);
 </script>
 
 </body>
