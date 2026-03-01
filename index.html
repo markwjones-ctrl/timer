@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Love Clock Timer</title>
 
 <style>
@@ -13,8 +13,11 @@ body {
 
 /* Setup Screen */
 #setupScreen {
-  padding: 20px;
+  padding: 40px 20px;
   text-align: center;
+  background: white;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 /* Timer Screen */
@@ -25,27 +28,43 @@ body {
   background: black;
   color: white;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
 }
 
-/* Clock */
+/* Clock at top */
 #currentTime {
   font-size: 2em;
-  margin-bottom: 20px;
+  margin-top: 20px;
+  color: white;
 }
 
-/* Countdown */
+/* Countdown centered below */
+#timerContainer {
+  flex: 1; /* takes remaining space */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #timer {
   font-size: 5em;
   font-weight: bold;
 }
 
+/* Input and buttons */
+input {
+  padding: 10px;
+  font-size: 1rem;
+  width: 220px;
+  margin-bottom: 20px;
+}
+
 button {
   padding: 10px 20px;
-  font-size: 1em;
+  font-size: 1rem;
   margin: 5px;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -55,12 +74,10 @@ button {
 <!-- Setup Screen -->
 <div id="setupScreen">
   <h1>Love Clock Timer</h1>
-
   <label>Minutes:
     <input type="number" id="minutesInput" value="1" min="0">
   </label>
   <br><br>
-
   <button onclick="startTimer()">Start</button>
   <button onclick="clearTimer()">Clear</button>
 </div>
@@ -68,11 +85,12 @@ button {
 <!-- Timer Screen -->
 <div id="timerScreen" onclick="togglePause()">
   <div id="currentTime"></div>
-  <div id="timer">00:00</div>
+  <div id="timerContainer">
+    <div id="timer">00:00</div>
+  </div>
 </div>
 
 <script>
-let countdown;
 let totalSeconds = 0;
 let paused = false;
 let interval;
@@ -81,6 +99,7 @@ let interval;
 function startTimer() {
   const minutes = parseInt(document.getElementById("minutesInput").value) || 0;
   totalSeconds = minutes * 60;
+  paused = false;
 
   document.getElementById("setupScreen").style.display = "none";
   document.getElementById("timerScreen").style.display = "flex";
@@ -99,7 +118,6 @@ function startTimer() {
 // Update Countdown Display
 function updateDisplay() {
   const timer = document.getElementById("timer");
-
   const absSeconds = Math.abs(totalSeconds);
   const mins = Math.floor(absSeconds / 60);
   const secs = absSeconds % 60;
@@ -110,11 +128,7 @@ function updateDisplay() {
     ":" +
     String(secs).padStart(2, "0");
 
-  if (totalSeconds < 0) {
-    timer.style.color = "red";
-  } else {
-    timer.style.color = "white";
-  }
+  timer.style.color = totalSeconds < 0 ? "red" : "white";
 }
 
 // Pause / Resume
@@ -122,7 +136,7 @@ function togglePause() {
   paused = !paused;
 }
 
-// Clear (Hard Stop)
+// Clear Timer (hard stop)
 function clearTimer() {
   clearInterval(interval);
   paused = false;
@@ -132,13 +146,13 @@ function clearTimer() {
   document.getElementById("setupScreen").style.display = "block";
 }
 
-// Live Clock
+// Live Clock at top
 function updateClock() {
   const now = new Date();
-  document.getElementById("currentTime").textContent =
-    now.toLocaleTimeString();
+  document.getElementById("currentTime").textContent = now.toLocaleTimeString();
 }
 
+// Update clock every second
 setInterval(updateClock, 1000);
 </script>
 
